@@ -3,9 +3,9 @@
 
     <div class="py-20 mb-10 bg-yellow-400">
         <div class="w-full text-center">
-            <p class="text-sm tracking-widest text-white uppercase">ENEOSでんき</p>
+            <p class="text-sm tracking-widest text-white uppercase">ドコモショップスタッフ様専用</p>
             <h1 class="font-bold text-5xl text-white uppercase">
-                FAQまとめ
+                ENEOSでんき FAQ
             </h1>
         </div>
     </div>
@@ -34,7 +34,30 @@
           ホーム
         </button>
       </nuxt-link>
-      <div v-for="(Cate, index) in Cates" :key="Cate.title">
+
+      <!-- カテゴリ一覧 -->
+      <!-- <div v-for="(Cate, index) in Cates" :key="Cate.title">
+        <nuxt-link :to="{ name: 'category', params: { category: Cate } }">
+          <button
+              @click="tabChange(index + 1)"
+              :class="{ active: isActive === index +1 }"
+              class="
+              text-gray-600
+              py-4
+              px-6
+              block
+              hover:text-blue-500
+              focus:outline-none
+              "
+          >
+              {{ Cate }}
+          </button>
+        </nuxt-link>
+      </div> -->
+
+
+      <!-- カテゴリ一覧 -->
+      <div v-for="(Cate, index) in Cates" :key="Cate.title" class="sm:hidden">
         <nuxt-link :to="{ name: 'category', params: { category: Cate } }">
           <button
               @click="tabChange(index + 1)"
@@ -52,6 +75,25 @@
           </button>
         </nuxt-link>
       </div>
+
+      <div class="relative inline-block hidden sm:block my-auto">
+          <button @click="cateOpen()" :class="{ active: isActive === 2 }" class="px-6 py-4 text-gray-600 dark:text-gray-200 hover:text-gray-800 flex items-center space-x-1 focus:outline-none">
+            <span>カテゴリー</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+          <div :class="isCateOpen ? 'block' : 'hidden'" class="absolute left-0 z-20 py-1 mt-2 bg-white border border-gray-100 rounded-md shadow-xl dark:border-gray-700 lg:left-auto dark:bg-gray-800">
+            <div @click="cateOpen()" class="w-60" v-for="(Cate, index) in Cates" :key="index" >
+                <nuxt-link :to="{ name: 'category', params: { category: Cate } }">
+                  <button class="block px-4 py-3 text-sm text-gray-600 capitalize transition-colors duration-200 transform dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                      {{ Cate }}
+                  </button>
+                </nuxt-link>
+            </div>
+          </div>
+      </div>
+
       <nuxt-link to="/add">
         <button
             @click="tabChange(99)"
@@ -93,6 +135,7 @@ export default {
     return {
       isActive: 0,
       isOpen: false,
+      isCateOpen: false,
       Cates: [],
     };
   },
@@ -106,32 +149,35 @@ export default {
     },
     OpenMenu() {
       this.isOpen = !this.isOpen
+    },
+    cateOpen() {
+      this.isCateOpen = !this.isCateOpen
+      this.isActive = 2;
     }
   },
   mounted() {
-    console.log(this.Cates.length)
+    var Cates = this.$store.getters.getCates
+    Cates.forEach(cate => {
+      this.Cates.push(cate)
+    });
 
-      var Cates = this.$store.getters.getCates
-      Cates.forEach(cate => {
-        this.Cates.push(cate)
-      });
-      var category_para = this.$route.params.category;
-      this.isActive = this.Cates.indexOf(category_para) + 1;
+    if(this.$route.name == "add") {
+      this.isActive = 99;
+    }
 
-    console.log('実行')
     // リロード用
     this.$store.subscribe((mutation, state) => {
+
       if(this.Cates.length == 0) {
         if (mutation.type === "setCates") {
           var Cates = this.$store.getters.getCates
           Cates.forEach(cate => {
             this.Cates.push(cate)
           });
-          var category_para = this.$route.params.category;
-          this.isActive = this.Cates.indexOf(category_para) + 1;
         }
       }
     })
+
   },
   beforeMount() {
     // カテゴリ空にする

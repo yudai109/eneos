@@ -69,7 +69,7 @@
 
 <script>
 export default {
-    layout: "post",
+    layout: "add",
     data() {
         return {
             title: "",
